@@ -1,0 +1,54 @@
+---
+
+# Name of the experiment
+name:
+    raw_data: &NAME "Year-Month-Day"
+    analyses: *NAME
+
+# Positions to match (list of regex patterns)
+positions: ["^pos[0-9]+$", ]
+
+# Locations of data or analyses directories
+paths:
+    raw_data: ~/Caulobacter/Data/
+    analyses: ~/Caulobacter/Analysis/
+    figures: ~/Caulobacter/Figures/
+    exports: ~/Caulobacter/Exports/
+
+# Parameters for the analysis
+parameters:
+    general:
+        block_size: 500
+        num_procs: 8
+        write_mode: 0
+        frame_range: [0, float('inf')]
+    phase:
+        segment:
+            pattern: "^(phase)([0-9]+)(.tif)$"
+            method: local
+            filter_size: 5
+            level: 0.2
+            selem_size: 2
+            rescale_low: [0, 50]
+            rescale_high: [50, 100]
+            min_size: 400
+        extract:
+            smoothing: 0.1
+            coverage: 2
+            num_coefs: 10
+        verify:
+            edge: [1, 1]
+            shape: [1024, 1024]
+            min_dist: 256
+            num_points: 100
+        track:
+            frame_steps: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 45, 60]
+            pixel_steps: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25]
+            num_points: 5
+            num_pixels: 5.0
+        collate:
+            min_dist: 10
+            num_coefs: 10
+            spans: [30, 40, 50, 60, 70]
+            order: 30
+            min_prob: 0.7
