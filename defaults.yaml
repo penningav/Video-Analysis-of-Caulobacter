@@ -10,10 +10,10 @@ positions: ["^pos[0-9]+$", ]
 
 # Locations of data or analyses directories
 paths:
-    raw_data: ~/Caulobacter/Data/
-    analyses: ~/Caulobacter/Analysis/
-    figures: ~/Caulobacter/Figures/
-    exports: ~/Caulobacter/Exports/
+    raw_data: ~/Projects/Wright-Bacteria/Data/
+    analyses: ~/Projects/Wright-Bacteria/Analysis/
+    figures: ~/Projects/Wright-Bacteria/Figures/
+    exports: ~/Projects/Wright-Bacteria/Exports/
 
 # Parameters for the analysis
 parameters:

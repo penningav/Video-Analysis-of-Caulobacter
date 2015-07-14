@@ -22,6 +22,7 @@ PATTERN = {'phasetif' : r'^(phase)([\d]*).tif$',
            'blockdir' : r'^(frame)([\d]*)-([\d]*)$',
            'posndir' : r'^(pos)([\d]*)$'}
 
+
 def getframenum(file_name, pattern=PATTERN['phasetif']):
     """
     Return the frame number by extracting it from the file name, which
@@ -44,6 +45,7 @@ def getframenum(file_name, pattern=PATTERN['phasetif']):
         frame_num = -1
     return frame_num
 
+
 def updatelog(expt, posn, func, input_dir=None):
     """
     Save an entry in a log file.
@@ -63,6 +65,7 @@ def updatelog(expt, posn, func, input_dir=None):
     else:
         with open(os.path.join(input_dir, 'analysis.log'), 'a') as f:
             f.write(line + '\n')
+
 
 def loadlogdata(expt_dir, posn=None):
     """
@@ -92,6 +95,7 @@ def loadlogdata(expt_dir, posn=None):
         log_data = {}
     return log_data
 
+
 def listfiles(input_dir, pattern=r''):
     """
     List files in the specified directory that match the specified regular
@@ -114,6 +118,7 @@ def listfiles(input_dir, pattern=r''):
             if os.path.isfile(os.path.join(input_dir, v)):
                 yield v
 
+
 def listdirs(input_dir, pattern=r''):
     """
     List files in the specified directory that match the specified regular
@@ -135,6 +140,7 @@ def listdirs(input_dir, pattern=r''):
         if re.match(pattern, v):
             if os.path.isdir(os.path.join(input_dir, v)):
                 yield v
+
 
 def makedataframe(input_dir, parameters):
     """
@@ -159,6 +165,7 @@ def makedataframe(input_dir, parameters):
         vs = v if vs is None else vs.join(v)
     return vs
 
+
 def stitchdataframes(df1, df2, n=None):
     """
     Stitch data from two separate blocks together, including only the first and last few frames of each block, resulting in a DataFrame with just the frames near the overlapping region. The default is to include all frames.
@@ -181,6 +188,7 @@ def stitchdataframes(df1, df2, n=None):
     j2 = [i for i in df2.index if i[0] in f2]
     return concat((df1.ix[j1], df2.ix[j2]))
 
+
 def rmkdir(input_dir):
     """
     Recursively make directory (make new directory, filling in all required directories above it).
@@ -195,6 +203,7 @@ def rmkdir(input_dir):
         if not os.path.isdir(v):
             os.mkdir(v)
 
+
 def cmkdir(input_dir):
     """
     Make clean copy of directory. Makes any top directories as needed.
@@ -207,9 +216,12 @@ def cmkdir(input_dir):
         shutil.rmtree(input_dir)
     rmkdir(input_dir)
 
+
 def walklevel(basepath, level=1):
     """
-    Walk through directory levels to specified depth. Based on stackoverflow forum answer by nosklo at: stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
+    Walk through directory levels to specified depth. Based on stackoverflow 
+    forum answer by nosklo at: 
+    stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
 
     args:
         basepath (path): starting directory

@@ -11,7 +11,7 @@ import traceback
 
 from skimage.measure import label
 from skimage.morphology import disk, remove_small_objects
-from skimage.filter.rank import bottomhat
+from skimage.filters.rank import bottomhat
 from scipy.ndimage.morphology import binary_fill_holes
 from scipy.ndimage import median_filter
 from scipy.signal import wiener

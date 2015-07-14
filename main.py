@@ -65,27 +65,38 @@ def main(file_name):
     """
     inputs = loadinputs(file_name)
     
+#    for key in inputs:
+#        print key, ':', inputs[key]
+    
+    # I guess this was supposed to be in the yaml file? -BK
+    inputs['sequence'] = ['segment', 'track']
+    
+    
     # Loop over each action in order
     for s in inputs['sequence']:
         action = setaction(inputs, s)
-        for p in action['positions']:
+        
+        for pos in inputs['positions']:
             d = dict(action)
-            d['input_dir'] = os.path.join(action['input_dir'], p)
-            d['output_dir'] = os.path.join(action['output_dir'], p)
-            d['position'] = p
+            d['input_dir'] = os.path.join(action['input_dir'], pos)
+            d['output_dir'] = os.path.join(action['output_dir'], pos)
+            d['position'] = pos
             d['experiment'] = inputs['experiment']
             
-            # Evaluate the requested function in parallel
-            eval('parallel.%s(%s)' % (action['function'], d))
             
-            # Save an entry in a log file
-            log_file = os.path.join(os.path.dirname(file_name), 'log.txt')
-            with open(log_file, 'a') as f:
-                s1 = str(d['experiment'])
-                s2 = str(d['position'])
-                s3 = '%s.%s' % (action['module'], action['function'])
-                s4 = time.asctime()
-                f.write('{:12s}{:8s}{:16s}{:s}'.format(s1, s2, s3, s4))
+            print 'parallel.%s(%s)' % (action['function'], d)
+            
+#            # Evaluate the requested function in parallel
+#            eval('parallel.%s(%s)' % (action['function'], d))
+#            
+#            # Save an entry in a log file
+#            log_file = os.path.join(os.path.dirname(file_name), 'log.txt')
+#            with open(log_file, 'a') as f:
+#                s1 = str(d['experiment'])
+#                s2 = str(d['position'])
+#                s3 = '%s.%s' % (action['module'], action['function'])
+#                s4 = time.asctime()
+#                f.write('{:12s}{:8s}{:16s}{:s}'.format(s1, s2, s3, s4))
 
 
 if __name__ == "__main__":
@@ -93,7 +104,5 @@ if __name__ == "__main__":
         file_name = sys.argv[1]
     else:
         raise IndexError('list index out of range')
-        #file_name = '~/Dropbox/Caulobacter/Code/example/parameters.txt'
     main(os.path.expanduser(file_name))
-    
     

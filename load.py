@@ -23,6 +23,7 @@ import read
 __author__ = "Charlie Wright"
 __email__ = "charles.s.wright@gmail.com"
 
+
 # Set plotting options
 rc('font', family='serif')
 rc('text', usetex=True)
@@ -35,6 +36,7 @@ rc('axes', color_cycle=color_cycle)
 # Set relevant constants
 UPLOADS_DIR = os.path.join(os.path.expanduser('~'), 'Google Drive',
                            'Scherer Lab', 'Analysis (Spline)')
+
 
 class TraceData():
     """
@@ -93,6 +95,7 @@ class TraceData():
                 'Generation',
                 'Length',
                 'StalkedPole', 'SwarmerPole')
+
 
     def __init__(self, analysis_dir, posns):
         """
@@ -162,6 +165,7 @@ class TraceData():
         self.num_gens = sum([sum([len(v) for v in d['Divns']])
                              for d in self.trace_data])
 
+
     def __getitem__(self, idx):
         """
         Retrieve data for specified trace.
@@ -196,12 +200,14 @@ class TraceData():
                     d[k] = d[k][d['Label'].index]
         return d
 
+
     def __len__(self):
         """
         Print the number of traces in the dataset.
 
         """
         return self.num_traces
+
 
     def loadvar(self, key, convert=True):
         """
@@ -250,6 +256,7 @@ class TraceData():
                             v[1][1] *= self.PX2UM
                         self.frame_data[i][key][k] = v
 
+
     def delvar(self, key):
         """
         Delete specified variable from memory. These function will only delete variables that have been loaded from file.
@@ -262,6 +269,7 @@ class TraceData():
             for i in range(self.num_posns):
                 if self.frame_data[i].has_key(key):
                     del self.frame_data[i][key]
+
 
     def uploadall(self):
         """
@@ -308,6 +316,7 @@ class TraceData():
                                 shutil.copy2(v, v.replace(src, dst))
     '''
 
+
     def exportall(self, upload=False):
         """
         Export all data to text files.
@@ -317,6 +326,7 @@ class TraceData():
 
         """
         [self.export(k, upload=upload) for k in self.TXT_KEYS]
+
 
     def export(self, key, upload=False):
         """
@@ -572,12 +582,14 @@ class TraceData():
         if not has_var:
             self.delvar(key)
 
+
     def plotall(self):
         """
         Plot all valid variables.
 
         """
         [self.plot(k) for k in self.PLT_KEYS]
+
 
     def plot(self, key):
         """
@@ -689,6 +701,7 @@ class TraceData():
         if not has_var:
             self.delvar(key)
 
+
     def plotpumpdata(self, ax=None):
         if ax is None:
             ax = plt.gca()
@@ -702,6 +715,7 @@ class TraceData():
                 x = np.asarray([t1, t2, t2, t1])
                 y = np.asarray([y1, y1, y2, y2])
                 ax.fill(x, y, color=c, alpha=0.2, linewidth=0)
+
 
     def plot1Dseries(self, time, data, gens,
                      bygens=True, showlog=True, showoffset=True):
@@ -818,6 +832,7 @@ class TraceData():
                 fig.savefig(data.file + 'LogVsTimeByGen.pdf', dpi=150)
         plt.close(fig)
 
+
     def plot2Dseries(self, time, data, gens, bygens=True):
         fig = plt.figure()
 
@@ -870,6 +885,7 @@ class TraceData():
                 % (self.expt_name.replace('_', ' '), data.posn))
             fig.savefig(data.file + 'DisplacementVsTimeByGen.pdf', dpi=150)
         plt.close(fig)
+
 
 def main(analysis_dir, posn_nums=None):
     posns = [v for v in read.listdirs(analysis_dir, read.PATTERN['posndir'])]

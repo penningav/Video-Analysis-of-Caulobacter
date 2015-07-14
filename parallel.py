@@ -15,6 +15,7 @@ __email__ = 'charles.s.wright@gmail.com'
 
 NUM_PROCS = 8
 
+
 def worker(func, args):
     """
     The worker function invoked in a process.
@@ -25,6 +26,7 @@ def worker(func, args):
 
     """
     [func(*v) for v in args]
+
 
 def main(func, args, num_procs=NUM_PROCS, timeout=None):
     """
@@ -60,6 +62,7 @@ def main(func, args, num_procs=NUM_PROCS, timeout=None):
     [p.join(timeout) for p in procs]
     [p.terminate() for p in procs if p.is_alive()]
     [p.join() for p in procs]
+
 
 if __name__ == '__main__':
     func, args = sys.argv[1:3]

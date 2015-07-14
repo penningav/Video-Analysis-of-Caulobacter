@@ -11,7 +11,6 @@ import re
 import shutil
 import sys
 import time
-import traceback
 import yaml
 
 import numpy as np
@@ -39,12 +38,14 @@ except ImportError as e:
 __author__ = 'Charlie Wright'
 __email__ = 'charles.s.wright@gmail.com'
 
+
 def cls():
     """
     Clear the terminal display.
 
     """
     os.system('cls' if os.name=='nt' else 'clear')
+
 
 def countdown(msg='', tTotal=11):
     """
@@ -62,6 +63,7 @@ def countdown(msg='', tTotal=11):
         print msg, str(int(tTotal - tElapsed)), '...'
         time.sleep(0.1)
         tElapsed = time.time() - tStart
+
 
 def loadinputs(input_dir):
     """
@@ -93,7 +95,7 @@ def loadinputs(input_dir):
         Loaded default parameters to %s.
         Exit now and edit this file to use non-default values.
         Starting automatic analysis in''' % input_file
-        countdown(msg)
+#        countdown(msg) # -BK
         cls()
 
     # Expand all directories
@@ -105,6 +107,7 @@ def loadinputs(input_dir):
             sub_dir = pattern
         inputs['paths'][k] = os.path.join(root, sub_dir)
     return inputs
+
 
 def setpositions(inputs, mode='raw_data'):
     """
@@ -128,6 +131,7 @@ def setpositions(inputs, mode='raw_data'):
     inputs['positions'] = sorted(positions)
     return inputs
 
+
 def preeditblock(input_dir, output_dir, modes, params):
     for m in modes:
         d = params[m]
@@ -135,14 +139,18 @@ def preeditblock(input_dir, output_dir, modes, params):
             input_file = os.path.join(input_dir, f)
             eval('%s.workflow.preeditimage(input_file, output_dir, d)' % m)
 
+
 def trackblock(input_dir, output_file, params):
     phase.workflow.trackblock(input_dir, output_file, params)
+
 
 def stitchblocks(input_dirs, params):
     phase.workflow.stitchblocks(input_dirs, params)
 
+
 def collateblocks(input_dirs, output_file, params):
     phase.workflow.collateblocks(input_dirs, output_file, params)
+
 
 def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
     """
@@ -270,7 +278,6 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
                     try:
                         d = read_pickle(dat_file)
                     except:
-                        # traceback.print_exc()
                         pass
                     data.append(d)
                 df = concat(data)
@@ -311,6 +318,7 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
         read.updatelog(expt, p, 'preedit', expt_analyses_dir)
         print 'final: ' + time.asctime()
 
+
 def editmovie(expt_raw_data_dir, expt_analyses_dir, positions):
     """
     Interactive, manual editing.
@@ -318,8 +326,10 @@ def editmovie(expt_raw_data_dir, expt_analyses_dir, positions):
     """
     phase.workflow.editmovie(expt_raw_data_dir, expt_analyses_dir, positions)
 
+
 def posteditblock(input_dir, params):
     phase.workflow.posteditblock(input_dir, params)
+
 
 def posteditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
     """
@@ -346,6 +356,7 @@ def posteditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
         # Update the experiment log file
         read.updatelog(expt, p, 'postedit', expt_analyses_dir)
 
+
 def main(input_dir, mode='preedit'):
     inputs = loadinputs(input_dir)
     expt_raw_data_dir = os.path.join(inputs['paths']['raw_data'],
@@ -363,6 +374,7 @@ def main(input_dir, mode='preedit'):
         inputs = setpositions(inputs, 'analyses')
         posteditmovie(expt_raw_data_dir, expt_analyses_dir,
                      inputs['positions'], inputs['parameters'])
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
