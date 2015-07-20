@@ -158,4 +158,6 @@ def main(img, d):
 
     # Clean the binary image and return a labeled integer array
     bw2 = cleanbinary(bw, min_size=d['min_size'])
-    return label(bw2)
+
+    # FIXME: this cast will not work if there are more than 30 objects visible
+    return label(bw2).astype(np.int8)
