@@ -240,3 +240,4 @@ def walklevel(basepath, level=1):
         yield root, dirs, files
         if num_sep + level <= root.count(os.sep):
             del dirs[:]
+

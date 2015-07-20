@@ -19,7 +19,7 @@ from ttk import Frame, Button, Label, Style
 from matplotlib import cm
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.backend_bases import key_press_handler
+#from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 

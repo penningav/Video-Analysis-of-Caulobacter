@@ -10,8 +10,8 @@ positions: ["^pos[0-9]+$", ]
 
 # Locations of data or analyses directories
 paths:
-    raw_data: ~/Projects/Wright-Bacteria/Data/
-    analyses: ~/Projects/Wright-Bacteria/Analysis/
+    raw_data: ~/Projects/Wright-Bacteria/Data/2015-03-03
+    analyses: ~/Projects/Wright-Bacteria/Analysis/2015-03-03
     figures: ~/Projects/Wright-Bacteria/Figures/
     exports: ~/Projects/Wright-Bacteria/Exports/
 

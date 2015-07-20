@@ -28,12 +28,7 @@ try:
     MODES += ('phase', )
 except ImportError as e:
     print 'phase:', e
-try:
-    import fluor.workflow
-    MODES += ('fluor', )
-except ImportError as e:
-    pass
-#     print 'fluor:', e
+
 
 __author__ = 'Charlie Wright'
 __email__ = 'charles.s.wright@gmail.com'
@@ -181,11 +176,12 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
 
         # Pad with default parameters, and find frames to process
         frame_start, frame_stop = float('inf'), 0.
-        for m in MODES:
-            d = params[m]
+        for mode in MODES:
+            print '---mode', mode
+            d = params[mode]
 
             # Pad with default parameters as necessary
-            d = eval('%s.workflow.fillparams(d)' % m)
+            d = eval('%s.workflow.fillparams(d)' % mode)
 
             # Find all .tif images of specified type in the given directory
             d['segment']['file_list'] = []
@@ -196,20 +192,33 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
                     frame_stop = max(frame_stop, j)
                     d['segment']['file_list'].append(f)
             frame_stop += 1
+            # temp, debugging  -BK
+            frame_stop = 100
+
 
         # Create arguments for parallel processing
         args = [(posn_raw_data_dir, temp_dir,
                  MODES, copy.deepcopy(params)) for _ in range(g['num_procs'])]
-        for i, a in enumerate(args):
-            for m in a[2]:
-                v = a[3][m]['segment']['file_list']
+        for i, arg in enumerate(args):
+            for m in arg[2]:
+                v = arg[3][m]['segment']['file_list']
                 v = v[i::g['num_procs']]
-                a[3][m]['segment']['file_list'] = v
-        sum([len(a[3]['phase']['segment']['file_list']) for a in args])
+                arg[3][m]['segment']['file_list'] = v
+        #sum([len(arg[3]['phase']['segment']['file_list']) for arg in args])
+
+
+        # # debug -BK
+        # for arg in args:
+        #     file_list = arg[3]['phase']['segment']['file_list']
+        #     file_list.sort()
+        #     print file_list
+        # break
+
 
         # Process each block of frames in parallel
         parallel.main(preeditblock, args, g['num_procs'])
-        print 'sextract: ' + time.asctime()
+        print 'extract: ' + time.asctime()
+
 
         # Archive the output files into .zip files, then delete each .tif
         num_tifs = frame_stop - frame_start
@@ -308,7 +317,6 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
         stitchblocks(block_dirs, params['phase']['track'])
         print 'stitch: ' + time.asctime()
 
-
         # Collate the data for manual editing
         output_file = os.path.join(posn_analyses_dir, 'edits.pickle')
         collateblocks(block_dirs, output_file, params['phase']['collate'])
@@ -317,6 +325,7 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
         # Update the experiment log file
         read.updatelog(expt, p, 'preedit', expt_analyses_dir)
         print 'final: ' + time.asctime()
+
 
 
 def editmovie(expt_raw_data_dir, expt_analyses_dir, positions):
@@ -358,11 +367,13 @@ def posteditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
 
 
 def main(input_dir, mode='preedit'):
+
     inputs = loadinputs(input_dir)
     expt_raw_data_dir = os.path.join(inputs['paths']['raw_data'],
                                      inputs['name']['raw_data'])
     expt_analyses_dir = os.path.join(inputs['paths']['analyses'],
                                      inputs['name']['analyses'])
+
     if mode in (0, 'preedit'):
         inputs = setpositions(inputs, 'raw_data')
         preeditmovie(expt_raw_data_dir, expt_analyses_dir,
@@ -377,13 +388,18 @@ def main(input_dir, mode='preedit'):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        input_dir = sys.argv[1]
-    else:
-        raise IndexError('list index out of range')
-        #input_dir = '~/Dropbox/Scherer/Caulobacter/Code/example/Analyses/2013-01-12'
-    if len(sys.argv) > 2:
-        mode = sys.argv[2]
-    else:
-        mode = 'preedit'
+    
+#    if len(sys.argv) > 1:
+#        input_dir = sys.argv[1]
+#    else:
+#        raise IndexError('list index out of range')
+#        #input_dir = '~/Dropbox/Scherer/Caulobacter/Code/example/Analyses/2013-01-12'
+#    if len(sys.argv) > 2:
+#        mode = sys.argv[2]
+#    else:
+#        mode = 'preedit'
+    
+    # -BK
+    mode = 'preedit'
+    input_dir = '../Data/2015-03-03/'
     main(os.path.expanduser(input_dir), mode)
