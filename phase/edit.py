@@ -164,7 +164,7 @@ class Edit_GUI(Frame):
 
         # Reset the position listbox
         self.posn_listbox.delete(0, END)
-        [self.posn_listbox.insert(END, v) for v in self.posns]
+        [self.posn_listbox.insert(END, pos) for pos in self.posns]
 
         # Variable for holding temporary area traces
         self.temp = None
@@ -601,6 +601,7 @@ class Edit_GUI(Frame):
             self.plots['data'].extend(self.fig.axes[2].plot(x, y2, 'r.'))
             self.plots['data'].extend(self.fig.axes[2].plot(
                 x3, y3, 'g+', ms=10, mew=3, alpha=0.8))
+
             self.plots['divns'] = self.fig.axes[2].vlines(
                 self.time[self.Divns], y_min, y_max)
             if view_mode >= 0:

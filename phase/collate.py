@@ -99,13 +99,20 @@ def main(input_dirs, d):
     # Find all analyzed frame blocks in the given directory
     read_names = 'Area', 'Trace', 'IsOnEdge', 'Nearest', 'FourierFit'
     r = dict.fromkeys(read_names)
-    for v in input_dirs:
-        for k in read_names:
-            df = read_pickle(os.path.join(v, k + '.pickle'))
-            if not r.has_key(k):
-                r[k] = df
+    for input_dir in input_dirs:
+        for read_name in read_names:
+            df = read_pickle(os.path.join(input_dir, read_name + '.pickle'))
+            if read_name not in r:
+                r[read_name] = df
             else:
-                r[k] = concat((r[k], df))
+                r[read_name] = concat((r[read_name], df))
+
+    # debug --BK
+    print '**** debug: r dict'
+    for key in r:
+        print
+        print r[key].head()
+
 
     # Initialize values organized by cell trajectory
     traces = np.unique(r['Trace'].values)
@@ -121,45 +128,52 @@ def main(input_dirs, d):
     index = range(num_traces)
 
     # Convert all values to arrays organized by cell trajectory
-    for i, t in enumerate(traces):
+    for i, trace in enumerate(traces):
         # Create data dictionary for each trace
-        v = dict.fromkeys(columns)
-        v['Trace'] = t
-        v['Saved'] = lifetimes[t] > min_lifetime
-        v['Mother'] = None
-        v['Label'] = np.zeros(num_frames, dtype=int)
-        v['Keep'] = np.ones(num_frames, dtype=bool)
-        v['Area'] = np.zeros(num_frames) * np.nan
-        v['Divns'] = []
+        trace_dict = dict.fromkeys(columns)
+        trace_dict['Trace'] = trace
+        trace_dict['Saved'] = lifetimes[trace] > min_lifetime
+        trace_dict['Mother'] = None
+        trace_dict['Label'] = np.zeros(num_frames, dtype=int)
+        trace_dict['Keep'] = np.ones(num_frames, dtype=bool)
+        trace_dict['Area'] = np.zeros(num_frames) * np.nan
+        trace_dict['Divns'] = []
         coefs = np.zeros((num_frames, d['num_coefs']))
-        for j, f in enumerate(frames):
-            # j = f - f0
-            k = t == r['Trace'][f]
+        for j, frame in enumerate(frames):
+            k = trace == r['Trace'][frame]
+
             if k.any():
-                try:
-                    # Add values for cell label and area
-                    v['Label'][j] = r['Trace'][f][k].index
-                    v['Area'][j] = r['Area'][f][k]
+                # try:
+                # Add values for cell label and area
 
-                    # Save coefficients from Fourier fit
-                    c = r['FourierFit'][f][k].values[0]
-                    coefs[j, :] = np.abs(c)[:d['num_coefs']]
+                trace_dict['Label'][j] = r['Trace'][frame][k].index[0]
+                trace_dict['Area'][j] = r['Area'][frame][k]
 
-                    # Do not keep point if checks failed
-                    n = r['Nearest'][f][k].values[0].values()
-                    if (r['IsOnEdge'][f][k] or np.isnan(r['Area'][f][k]) or
-                        (n and min(n) < d['min_dist'])):
-                        v['Keep'][j] = False
-                except:
-                    # traceback.print_exc()
-                    v['Keep'][j] = False
+                # Save coefficients from Fourier fit
+                c = r['FourierFit'][frame][k].values[0]
+                coefs[j, :] = np.abs(c)[:d['num_coefs']]
+
+                # Do not keep point if checks failed
+                n = r['Nearest'][frame][k].values[0].values()
+
+                is_on_edge = r['IsOnEdge'][frame][k].values[0]
+                area_not_ok = np.isnan(r['Area'][frame][k]).values[0]
+                dist_too_small = (n and min(n) < d['min_dist'])
+
+                if (is_on_edge or area_not_ok or dist_too_small):
+                    trace_dict['Keep'][j] = False
+                # except:
+                #     trace_dict['Keep'][j] = False
+
             else:
-                v['Keep'][j] = False
+                trace_dict['Keep'][j] = False
+
         # Find division times
-        if v['Saved']:
-            v['Divns'] = getdivntimes(coefs,
+        if trace_dict['Saved']:
+            trace_dict['Divns'] = getdivntimes(coefs,
                 spans=d['spans'], order=d['order'], min_prob=d['min_prob'])
-        data[i] = v
+        data[i] = trace_dict
 
     # Return the collated Data Frame
-    return DataFrame(data, columns=columns, index=index)
+    df = DataFrame(data, columns=columns, index=index)
+    return df

@@ -161,6 +161,7 @@ def preeditimage(input_file, output_dir, params):
 
 def trackblock(input_dir, output_file, params):
     s = track.main(input_dir, params)
+    print 'phase/workflow trackblock is writing tracking info to', output_file
     s.to_pickle(output_file)
 
 

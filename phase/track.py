@@ -13,6 +13,7 @@ import numpy as np
 
 from scipy.interpolate import splev
 
+
 sys.path.append(os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2]))
 import read
 
@@ -25,7 +26,7 @@ def matchpoints(series1, series2, cutoff=10):
     Track the points given by series1 into series2, whose Euclidean distance is 
     less than the distance given by the parameter max_dist. If more than two 
     objects lie within the same cutoff distance, neither is identified. The 
-    dresults give the labels of matching objects in each series.
+    results give the labels of matching objects in each series.
 
     args:
         series 1 (Series): 1st series of trajectories
@@ -162,7 +163,7 @@ def track(df, frame_steps=[1, 2], pixel_steps=[1, 2, 3]):
     number, the second to the automatically assigned per-frame 'Label' and 
     columns 'Points' and 'Trace'. The 'Trace' value is updated after each 
     iteration of the tracking procedure. For each pair of frames that are 
-    compared, the Euclidean distance beween points in 'Points' is calculated, 
+    compared, the Euclidean distance between points in 'Points' is calculated,
     and a new trace identified only if a unique match exists between points at 
     a distance less than the current cutoff. This procedure repeats at various 
     intervals between frames.

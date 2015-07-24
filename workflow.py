@@ -130,8 +130,10 @@ def setpositions(inputs, mode='raw_data'):
 def preeditblock(input_dir, output_dir, modes, params):
     for m in modes:
         d = params[m]
-        for f in d['segment']['file_list']:
+        file_list = sorted(d['segment']['file_list'])
+        for f in file_list:
             input_file = os.path.join(input_dir, f)
+            print 'segmenting/extraction from ', input_file
             eval('%s.workflow.preeditimage(input_file, output_dir, d)' % m)
 
 
@@ -145,6 +147,17 @@ def stitchblocks(input_dirs, params):
 
 def collateblocks(input_dirs, output_file, params):
     phase.workflow.collateblocks(input_dirs, output_file, params)
+
+
+def partition_indices(list_, num):
+    # Slices indices to partition list as evenly as possible.
+    part_sizes = [len(list_) / int(num) for _ in range(num)]
+    remainder = len(list_) % num
+    for part_num in range(remainder):
+        part_sizes[part_num] += 1
+    end_inds = np.cumsum(part_sizes)
+    sta_inds = [end - size for end, size in zip(end_inds, part_sizes)]
+    return zip(sta_inds, end_inds)
 
 
 def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
@@ -162,7 +175,7 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
     for p in positions:
         # Update the terminal display
         read.updatelog(expt, p, 'preedit')
-        print 'start: ' + time.asctime()
+        print 'start position ' + p + ': ' + time.asctime()
 
         posn_raw_data_dir = os.path.join(expt_raw_data_dir, p)
         posn_analyses_dir = os.path.join(expt_analyses_dir, p)
@@ -192,27 +205,21 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
                     frame_stop = max(frame_stop, j)
                     d['segment']['file_list'].append(f)
             frame_stop += 1
-            # temp, debugging  -BK
-            frame_stop = 100
 
 
         # Create arguments for parallel processing
         args = [(posn_raw_data_dir, temp_dir,
                  MODES, copy.deepcopy(params)) for _ in range(g['num_procs'])]
-        for i, arg in enumerate(args):
-            for m in arg[2]:
-                v = arg[3][m]['segment']['file_list']
-                v = v[i::g['num_procs']]
-                arg[3][m]['segment']['file_list'] = v
-        #sum([len(arg[3]['phase']['segment']['file_list']) for arg in args])
+        file_list = sorted(args[0][3]['phase']['segment']['file_list'])
 
+        # debug: select only a few files -BK
+        frame_stop = 3
+        file_list = file_list[:frame_stop]
+        # debug: select only a few files -BK
 
-        # # debug -BK
-        # for arg in args:
-        #     file_list = arg[3]['phase']['segment']['file_list']
-        #     file_list.sort()
-        #     print file_list
-        # break
+        inds = partition_indices(file_list, g['num_procs'])
+        for (sta_ind, end_ind), arg in zip(inds, args):
+            arg[3]['phase']['segment']['file_list'] = file_list[sta_ind:end_ind]
 
 
         # Process each block of frames in parallel
@@ -266,7 +273,7 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
             dat_name = m.capitalize() + 'Data'
             [read.cmkdir(os.path.join(v, dat_name)) for v in block_dirs]
 
-            # Find all analyzed .dat files and transfer to the new directories
+            # Find all analyzed .pickle files and transfer to the new directories
             f, e = os.path.splitext(d['segment']['pattern'])
             dat_pattern = (f + '.pickle' + e[4:])
             for f in read.listfiles(temp_dir, dat_pattern):
@@ -279,8 +286,8 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
                         shutil.move(old_name, dat_dir)
 
             # Concatenate each set of files into a DataFrame for each parameter
-            for v in block_dirs:
-                dat_dir = os.path.join(v, dat_name)
+            for block_dir in block_dirs:
+                dat_dir = os.path.join(block_dir, dat_name)
                 data = []
                 for u in os.listdir(dat_dir):
                     dat_file = os.path.join(dat_dir, u)
@@ -292,7 +299,7 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
                 df = concat(data)
                 df = df.reindex(sorted(df.index))
                 for c in df.columns:
-                    df[c].to_pickle(os.path.join(v, c + '.pickle'))
+                    df[c].to_pickle(os.path.join(block_dir, c + '.pickle'))
                 shutil.rmtree(dat_dir)
         print 'shuffle: ' + time.asctime()
 
@@ -384,7 +391,7 @@ def main(input_dir, mode='preedit'):
     elif mode in (2, 'postedit'):
         inputs = setpositions(inputs, 'analyses')
         posteditmovie(expt_raw_data_dir, expt_analyses_dir,
-                     inputs['positions'], inputs['parameters'])
+                      inputs['positions'], inputs['parameters'])
 
 
 if __name__ == "__main__":

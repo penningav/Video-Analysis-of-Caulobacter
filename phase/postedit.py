@@ -102,6 +102,8 @@ def find_midline(es):
     Find Voronoi diagram of input data points, keeping only internal points.
 
     """
+    # FIXME: scikit image has a medial axis transform, which is designed to do
+    # FIXME: exactly this (I believe). skeletonize give similar results, different algo.
     vor = Voronoi(es)
     vs = vor.vertices
     return np.asarray([v for v in vs if point_in_poly(v, es)])
