@@ -22,6 +22,7 @@ import log
 import parallel
 import read
 
+
 MODES = ()
 try:
     import phase.workflow
@@ -213,7 +214,7 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
         file_list = sorted(args[0][3]['phase']['segment']['file_list'])
 
         # debug: select only a few files -BK
-        frame_stop = 3
+        frame_stop = 80
         file_list = file_list[:frame_stop]
         # debug: select only a few files -BK
 
@@ -333,6 +334,9 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
         read.updatelog(expt, p, 'preedit', expt_analyses_dir)
         print 'final: ' + time.asctime()
 
+        # debug -BK
+        break
+
 
 
 def editmovie(expt_raw_data_dir, expt_analyses_dir, positions):
@@ -407,6 +411,6 @@ if __name__ == "__main__":
 #        mode = 'preedit'
     
     # -BK
-    mode = 'preedit'
+    mode = 'edit'
     input_dir = '../Data/2015-03-03/'
     main(os.path.expanduser(input_dir), mode)

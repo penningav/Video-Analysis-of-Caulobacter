@@ -171,6 +171,8 @@ def stitchblocks(input_dirs, params):
 
 def collateblocks(input_dirs, output_file, params):
     df = collate.main(input_dirs, params)
+    # debug -BK
+    print 'Writing dataframe to ', output_file
     df.to_pickle(output_file)
 
 

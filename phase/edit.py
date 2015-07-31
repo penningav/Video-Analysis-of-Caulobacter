@@ -602,8 +602,14 @@ class Edit_GUI(Frame):
             self.plots['data'].extend(self.fig.axes[2].plot(
                 x3, y3, 'g+', ms=10, mew=3, alpha=0.8))
 
-            self.plots['divns'] = self.fig.axes[2].vlines(
-                self.time[self.Divns], y_min, y_max)
+            # TODO: -BK
+            # Something is still wrong with phase/collate.py -- division is after
+            # approx. 50 frames/minutes. With 100 frames, you should see at least one
+            # division for basically all of the cells.
+
+            if self.Divns:
+                self.plots['divns'] = self.fig.axes[2].vlines(
+                    self.time[self.Divns], y_min, y_max)
             if view_mode >= 0:
                 self.fig.axes[2].set_xlim((min(self.time), max(self.time)))
                 self.fig.axes[2].set_ylim(y_min, y_max)
