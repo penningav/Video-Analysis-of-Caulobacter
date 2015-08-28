@@ -213,10 +213,11 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
                  MODES, copy.deepcopy(params)) for _ in range(g['num_procs'])]
         file_list = sorted(args[0][3]['phase']['segment']['file_list'])
 
-        # debug: select only a few files -BK
-        frame_stop = 80
-        file_list = file_list[:frame_stop]
-        # debug: select only a few files -BK
+        # # debug: select only a few files -BK
+        # print 'initial frame stop', frame_stop
+        # frame_stop = 500
+        # file_list = file_list[:frame_stop]
+        # # debug: select only a few files -BK
 
         inds = partition_indices(file_list, g['num_procs'])
         for (sta_ind, end_ind), arg in zip(inds, args):
@@ -334,8 +335,8 @@ def preeditmovie(expt_raw_data_dir, expt_analyses_dir, positions, params):
         read.updatelog(expt, p, 'preedit', expt_analyses_dir)
         print 'final: ' + time.asctime()
 
-        # debug -BK
-        break
+        # only look @ first position -BK
+        # break
 
 
 
@@ -387,6 +388,7 @@ def main(input_dir, mode='preedit'):
 
     if mode in (0, 'preedit'):
         inputs = setpositions(inputs, 'raw_data')
+        pass
         preeditmovie(expt_raw_data_dir, expt_analyses_dir,
                      inputs['positions'], inputs['parameters'])
     elif mode in (1, 'edit'):
@@ -409,8 +411,7 @@ if __name__ == "__main__":
 #        mode = sys.argv[2]
 #    else:
 #        mode = 'preedit'
-    
-    # -BK
+
     mode = 'edit'
     input_dir = '../Data/2015-03-03/'
     main(os.path.expanduser(input_dir), mode)

@@ -115,12 +115,10 @@ def nan_moving_regression(pts, win_size=4):
         y_pred = regressor.predict(i)
         predicted[i] = y_pred
         scores[i] = score
-#        print i, prev, y_pred
         while np.isnan(pt):
             i += 1
             if i > len(pts)-1:
                 return predicted, scores
-            print i, len(pts)
             predicted[i] = y_pred
             scores[i] = score
             pt = pts[i]
@@ -145,68 +143,68 @@ def division_inds(pts0, outlier_mask, win_size=4, thresh=-4):
     return inds.tolist()
 
 
-def getdivntimes(coefs):
+def getdivntimes_bk(coefs):
     pts = coefs[:, 0]
     outlier_mask = identify_linear_outliers(pts)
     outlier_inds = np.where(outlier_mask)[0]
     return division_inds(pts, outlier_inds)
 
-#
-# def getdivntimes(coefs, spans=range(10, 50, 10), order=30, min_prob=0.5):
-#     """
-#     Calculate division times from coefficients of fit.
-#
-#     args:
-#         coefs (ndarray): coefficients of Fourier fit to splined cells
-#
-#     kwargs:
-#         spans (list): list of timescales over which to cluster
-#         order (int): separation of cluster edges
-#         min_prob (float): value in [0, 1] giving minimum probability, above
-#             which a point is marked as an edge between clusters
-#
-#     returns:
-#         divns (list): list of division times
-#
-#     """
-#     # Find division times from fit coefficients
-#     num_frames, num_coefs = coefs.shape
-#     probs = np.zeros(num_frames)
-#     for span in spans:
-#         v = 1. / span
-#         w = np.arange(span)
-#         for f in range(num_frames - span + 1):
-#             fs = f + w
-#             c = coefs[fs, :]
-#             if np.sum(c == 0) > 0.5 * span * num_coefs:
-#                 continue
-#             for e in splitdata(c):
-#                 probs[fs[e]] += v
-#     probs /= len(spans)
-#
-#     # debug --BK
-#     f = open('/home/brian/tmp/coefs.pickle', 'wb')
-#     pickle.dump(coefs, f)
-#     f = open('/home/brian/tmp/spans.pickle', 'wb')
-#     pickle.dump(spans, f)
-#     f = open('/home/brian/tmp/order.pickle', 'wb')
-#     pickle.dump(order, f)
-#     f = open('/home/brian/tmp/min_prob.pickle', 'wb')
-#     pickle.dump(min_prob, f)
-#     f = open('/home/brian/tmp/probs.pickle', 'wb')
-#     pickle.dump(probs, f)
-#
-#     # Return peaks in division time probabilities
-#     divns = []
-#     k = np.hstack(argrelmax(probs, order=order))
-#     if np.any(k):
-#         divns = sorted(k[probs[k] > min_prob])
-#
-#     # debug --BK
-#     f = open('/home/brian/tmp/divns.pickle', 'wb')
-#     pickle.dump(divns, f)
-#
-#     return divns
+
+def getdivntimes(coefs, spans=range(10, 50, 10), order=30, min_prob=0.5):
+    """
+    Calculate division times from coefficients of fit.
+
+    args:
+        coefs (ndarray): coefficients of Fourier fit to splined cells
+
+    kwargs:
+        spans (list): list of timescales over which to cluster
+        order (int): separation of cluster edges
+        min_prob (float): value in [0, 1] giving minimum probability, above
+            which a point is marked as an edge between clusters
+
+    returns:
+        divns (list): list of division times
+
+    """
+    # Find division times from fit coefficients
+    num_frames, num_coefs = coefs.shape
+    probs = np.zeros(num_frames)
+    for span in spans:
+        v = 1. / span
+        w = np.arange(span)
+        for f in range(num_frames - span + 1):
+            fs = f + w
+            c = coefs[fs, :]
+            if np.sum(c == 0) > 0.5 * span * num_coefs:
+                continue
+            for e in splitdata(c):
+                probs[fs[e]] += v
+    probs /= len(spans)
+
+    # debug --BK
+    f = open('/home/brian/tmp/coefs.pickle', 'wb')
+    pickle.dump(coefs, f)
+    f = open('/home/brian/tmp/spans.pickle', 'wb')
+    pickle.dump(spans, f)
+    f = open('/home/brian/tmp/order.pickle', 'wb')
+    pickle.dump(order, f)
+    f = open('/home/brian/tmp/min_prob.pickle', 'wb')
+    pickle.dump(min_prob, f)
+    f = open('/home/brian/tmp/probs.pickle', 'wb')
+    pickle.dump(probs, f)
+
+    # Return peaks in division time probabilities
+    divns = []
+    k = np.hstack(argrelmax(probs, order=order))
+    if np.any(k):
+        divns = sorted(k[probs[k] > min_prob])
+
+    # debug --BK
+    f = open('/home/brian/tmp/divns.pickle', 'wb')
+    pickle.dump(divns, f)
+
+    return divns
 
 
 def main(input_dirs, d):
@@ -224,6 +222,7 @@ def main(input_dirs, d):
     r = dict.fromkeys(read_names)
     for input_dir in input_dirs:
         for read_name in read_names:
+            print 'collate reading ', os.path.join(input_dir, read_name + '.pickle')
             df = read_pickle(os.path.join(input_dir, read_name + '.pickle'))
             if read_name not in r:
                 r[read_name] = df
@@ -286,12 +285,13 @@ def main(input_dirs, d):
 
         # Find division times
         if trace_dict['Saved']:
-            #trace_dict['Divns'] = getdivntimes(coefs, spans=d['spans'], order=d['order'], min_prob=d['min_prob'])
-            trace_dict['Divns'] = getdivntimes(coefs)
+            trace_dict['Divns'] = getdivntimes(coefs, spans=d['spans'], order=d['order'], min_prob=d['min_prob'])
+            #trace_dict['Divns'] = getdivntimes_bk(coefs)
         data[i] = trace_dict
 
     # Return the collated Data Frame
     df = DataFrame(data, columns=columns, index=index)
     print '---- returning dataframe: '
+    print df.columns
     print df.head()
     return df
