@@ -1,0 +1,96 @@
+---
+name:
+  analyses: '2015-03-03_WT_PYE'
+  raw_data: '2015-03-03'
+parameters:
+  general:
+    block_size: 500
+    frame_range:
+    - 0
+    - 2000
+    num_procs: 8
+    write_mode: 0
+  phase:
+    collate:
+      min_dist: 5
+      min_prob: 0.5
+      num_coefs: 10
+      order: 5
+      spans:
+      - 5
+      - 10
+      - 15
+      - 20
+      - 25
+    extract:
+      coverage: 2
+      num_coefs: 10
+      smoothing: 0.1
+    segment:
+      filter_size: 5
+      level: 0.2
+      method: local
+      min_size: 400
+      pattern: ^(phase)([0-9]+)(.tif)$
+      rescale_high:
+      - 50
+      - 100
+      rescale_low:
+      - 0
+      - 50
+      selem_size: 2
+    track:
+      frame_steps:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 15
+      - 20
+      - 25
+      - 30
+      - 45
+      - 60
+      num_pixels: 5.0
+      num_points: 5
+      pixel_steps:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 12
+      - 14
+      - 16
+      - 18
+      - 20
+      - 25
+    verify:
+      edge:
+      - 1
+      - 1
+      min_dist: 256
+      num_points: 100
+      shape:
+      - 1024
+      - 1024
+paths:
+  analyses: ~/Caulobacter/Analysis/
+  exports: ~/Caulobacter/Exports/
+  figures: ~/Caulobacter/Figures/
+  raw_data: /Volumes/RawData_22
+positions:
+- ^pos[4][4-9]+$
+- ^pos[5][0-9]+$
+- ^pos[6][0-5]+$
